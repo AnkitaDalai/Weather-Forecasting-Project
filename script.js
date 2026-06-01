@@ -63,7 +63,7 @@ searchBtn.addEventListener("click", () => {
 });
 
 // ======================================
-// Search With Enter Key
+// Search Weather With Enter Key
 // ======================================
 
 cityInput.addEventListener("keypress", (e) => {
@@ -92,15 +92,18 @@ async function getWeatherByCity(city) {
     const forecastURL =
       `https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${apiKey}&units=${currentUnit}`;
 
-    // Fetch APIs Together
+    // Fetch Both APIs Together
     const [weatherResponse, forecastResponse] =
       await Promise.all([
         fetch(weatherURL),
         fetch(forecastURL)
       ]);
 
-    const weatherData = await weatherResponse.json();
-    const forecastData = await forecastResponse.json();
+    const weatherData =
+      await weatherResponse.json();
+
+    const forecastData =
+      await forecastResponse.json();
 
     // Invalid City
     if (weatherData.cod !== 200) {
@@ -117,16 +120,13 @@ async function getWeatherByCity(city) {
     // Save Recent Search
     saveRecentCity(city);
 
-    // Clear Input
-    cityInput.value = "";
-
   } catch (error) {
 
     showError("Something went wrong.");
 
   } finally {
 
-    hideLoader();
+    smoothHideLoader();
 
   }
 
@@ -162,15 +162,20 @@ locationBtn.addEventListener("click", () => {
         const forecastURL =
           `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${apiKey}&units=${currentUnit}`;
 
+        // Fetch Both APIs Together
         const [weatherResponse, forecastResponse] =
           await Promise.all([
             fetch(weatherURL),
             fetch(forecastURL)
           ]);
 
-        const weatherData = await weatherResponse.json();
-        const forecastData = await forecastResponse.json();
+        const weatherData =
+          await weatherResponse.json();
 
+        const forecastData =
+          await forecastResponse.json();
+
+        // Update UI
         updateCurrentWeather(weatherData);
         updateForecast(forecastData);
 
@@ -180,7 +185,7 @@ locationBtn.addEventListener("click", () => {
 
       } finally {
 
-        hideLoader();
+        smoothHideLoader();
 
       }
 
@@ -206,20 +211,20 @@ function updateCurrentWeather(data) {
   cityName.textContent =
     `${data.name}, ${data.sys.country}`;
 
-  // Date & Time
+  // Current Date
   const today = new Date();
 
   dateTime.textContent =
-    today.toLocaleDateString("en-US", {
-      weekday: "long",
-      year: "numeric",
-      month: "long",
-      day: "numeric"
-    });
+    today.toDateString();
 
   // Temperature
+  const temp =
+    Math.round(data.main.temp);
+
   temperature.textContent =
-    `${Math.round(data.main.temp)}${currentUnit === "metric" ? "°C" : "°F"}`;
+    currentUnit === "metric"
+      ? `${temp}°C`
+      : `${temp}°F`;
 
   // Weather Condition
   weatherCondition.textContent =
@@ -231,7 +236,9 @@ function updateCurrentWeather(data) {
 
   // Feels Like
   feelsLike.textContent =
-    `${Math.round(data.main.feels_like)}${currentUnit === "metric" ? "°C" : "°F"}`;
+    currentUnit === "metric"
+      ? `${Math.round(data.main.feels_like)}°C`
+      : `${Math.round(data.main.feels_like)}°F`;
 
   // Humidity
   humidity.textContent =
@@ -239,18 +246,17 @@ function updateCurrentWeather(data) {
 
   // Wind Speed
   windSpeed.textContent =
-    currentUnit === "metric"
-      ? `${data.wind.speed} km/h`
-      : `${data.wind.speed} mph`;
+    `${data.wind.speed} km/h`;
 
   // Pressure
   pressure.textContent =
     `${data.main.pressure} hPa`;
 
-  // High Temperature Alert
+  // Weather Alert
   if (data.main.temp > 40 && currentUnit === "metric") {
 
     weatherAlert.classList.remove("hidden");
+    weatherAlert.classList.add("flex");
 
   } else {
 
@@ -271,15 +277,6 @@ function updateForecast(data) {
 
   forecastCards.innerHTML = "";
 
-  if (!data.list) {
-
-    forecastCards.innerHTML =
-      `<p class="text-white">Forecast unavailable.</p>`;
-
-    return;
-
-  }
-
   // Store Unique Days
   const forecastMap = {};
 
@@ -295,7 +292,7 @@ function updateForecast(data) {
 
   });
 
-  // Get 5 Days
+  // First 5 Days
   const dailyForecast =
     Object.values(forecastMap).slice(0, 5);
 
@@ -352,12 +349,15 @@ function saveRecentCity(city) {
   let cities =
     JSON.parse(localStorage.getItem("recentCities")) || [];
 
+  // Remove Duplicate
   cities = cities.filter(item =>
     item.toLowerCase() !== city.toLowerCase()
   );
 
+  // Add New City
   cities.unshift(city);
 
+  // Limit To 5
   cities = cities.slice(0, 5);
 
   localStorage.setItem(
@@ -414,28 +414,19 @@ recentCities.addEventListener("change", () => {
 // Temperature Toggle
 // ======================================
 
-function updateActiveUnit() {
-
-  celsiusBtn.classList.remove("bg-blue-600", "text-white");
-  fahrenheitBtn.classList.remove("bg-blue-600", "text-white");
-
-  if (currentUnit === "metric") {
-
-    celsiusBtn.classList.add("bg-blue-600", "text-white");
-
-  } else {
-
-    fahrenheitBtn.classList.add("bg-blue-600", "text-white");
-
-  }
-
-}
-
 celsiusBtn.addEventListener("click", () => {
 
   currentUnit = "metric";
 
-  updateActiveUnit();
+  celsiusBtn.classList.add(
+    "bg-blue-600",
+    "text-white"
+  );
+
+  fahrenheitBtn.classList.remove(
+    "bg-blue-600",
+    "text-white"
+  );
 
   const city =
     cityName.textContent.split(",")[0];
@@ -452,7 +443,15 @@ fahrenheitBtn.addEventListener("click", () => {
 
   currentUnit = "imperial";
 
-  updateActiveUnit();
+  fahrenheitBtn.classList.add(
+    "bg-blue-600",
+    "text-white"
+  );
+
+  celsiusBtn.classList.remove(
+    "bg-blue-600",
+    "text-white"
+  );
 
   const city =
     cityName.textContent.split(",")[0];
@@ -476,7 +475,7 @@ closeAlert.addEventListener("click", () => {
 });
 
 // ======================================
-// Dynamic Background
+// Dynamic Weather Background
 // ======================================
 
 function changeBackground(weather) {
@@ -489,30 +488,35 @@ function changeBackground(weather) {
 
       backgroundImage =
         "url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=1400&auto=format&fit=crop')";
+
       break;
 
     case "clouds":
 
       backgroundImage =
         "url('https://images.unsplash.com/photo-1499346030926-9a72daac6c63?q=80&w=1400&auto=format&fit=crop')";
+
       break;
 
     case "rain":
 
       backgroundImage =
         "url('https://images.unsplash.com/photo-1501691223387-dd0500403074?q=80&w=1400&auto=format&fit=crop')";
+
       break;
 
     case "thunderstorm":
 
       backgroundImage =
         "url('https://images.unsplash.com/photo-1500674425229-f692875b0ab7?q=80&w=1400&auto=format&fit=crop')";
+
       break;
 
     case "snow":
 
       backgroundImage =
         "url('https://images.unsplash.com/photo-1517299321609-52687d1bc55a?q=80&w=1400&auto=format&fit=crop')";
+
       break;
 
     default:
@@ -561,16 +565,24 @@ function showLoader() {
     loader.classList.remove("hidden");
     loader.classList.add("flex");
 
+    loader.style.opacity = "1";
+
   }
 
 }
 
-function hideLoader() {
+function smoothHideLoader() {
 
   if (loader) {
 
-    loader.classList.remove("flex");
-    loader.classList.add("hidden");
+    loader.style.opacity = "0";
+
+    setTimeout(() => {
+
+      loader.classList.add("hidden");
+      loader.classList.remove("flex");
+
+    }, 300);
 
   }
 
@@ -582,10 +594,10 @@ function hideLoader() {
 
 window.addEventListener("load", () => {
 
+  // Load Recent Searches
   loadRecentCities();
 
-  updateActiveUnit();
-
+  // Default City
   getWeatherByCity("Bhubaneswar");
 
 });
