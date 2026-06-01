@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+  <!-- Meta Tags -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Title -->
+  <title>Weather Forecast App</title>
+
+  <!-- Favicon -->
+  <link
+    rel="icon"
+    type="image/png"
+    href="https://cdn-icons-png.flaticon.com/512/7133/7133364.png"
+  />
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet"
+  >
+
+  <!-- Font Awesome -->
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+  />
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- CSS File -->
+  <link rel="stylesheet" href="style.css" />
+
+</head>
+
+<body class="bg-blue-50">
+
+  <!-- Main Container -->
+  <div class="container mx-auto px-2">
+
+    <!-- =========================
+         Header
+    ========================== -->
+
+    <header class="header flex flex-wrap">
+
+      <!-- Logo -->
+      <div class="logo">
+
+        <i class="fa-solid fa-cloud-sun"></i>
+
+        <h2>Weatherly</h2>
+
+      </div>
+
+      <!-- Search Box -->
+      <div class="search-box">
+
+        <input
+          type="text"
+          id="cityInput"
+          placeholder="Search city..."
+          aria-label="Search city"
+        />
+
+        <button
+          id="searchBtn"
+          aria-label="Search Weather"
+        >
+          <i class="fa-solid fa-magnifying-glass"></i>
+        </button>
+
+      </div>
+
+      <!-- Header Buttons -->
+      <div class="header-buttons">
+
+        <!-- Current Location Button -->
+        <button id="locationBtn">
+
+          <i class="fa-solid fa-location-dot"></i>
+
+          Current Location
+
+        </button>
+
+        <!-- Temperature Toggle -->
+        <div class="temp-toggle">
+
+          <button
+            id="celsiusBtn"
+            class="active"
+          >
+            °C
+          </button>
+
+          <button id="fahrenheitBtn">
+            °F
+          </button>
+
+        </div>
+
+      </div>
+
+    </header>
+
+    <!-- =========================
+         Recent Searches
+    ========================== -->
+
+    <div
+      class="recent-searches hidden"
+      id="recentSearchContainer"
+    >
+
+      <select id="recentCities">
+
+        <option value="">
+          Recent Searches
+        </option>
+
+      </select>
+
+    </div>
+
+    <!-- =========================
+         Weather Section
+    ========================== -->
+
+    <section class="weather-section transition-all duration-500">
+
+      <!-- Overlay -->
+      <div class="overlay"></div>
+
+      <!-- Weather Content -->
+      <div class="weather-content">
+
+        <!-- Left Weather Info -->
+        <div class="weather-info">
+
+          <!-- City -->
+          <h1 id="cityName">
+            Bhubaneswar
+          </h1>
+
+          <!-- Date -->
+          <p id="dateTime">
+            Saturday, 30 May 2026
+          </p>
+
+          <!-- Temperature -->
+          <div class="temperature">
+
+            <h2 id="temperature">
+              28°C
+            </h2>
+
+            <img
+              id="weatherIcon"
+              src="https://openweathermap.org/img/wn/02d@2x.png"
+              alt="Weather Icon"
+            />
+
+          </div>
+
+          <!-- Weather Condition -->
+          <h3 id="weatherCondition">
+            Partly Cloudy
+          </h3>
+
+        </div>
+
+        <!-- Weather Details -->
+        <div class="weather-details">
+
+          <!-- Feels Like -->
+          <div class="detail-card">
+
+            <i class="fa-solid fa-temperature-half"></i>
+
+            <p>Feels Like</p>
+
+            <h4 id="feelsLike">
+              31°C
+            </h4>
+
+          </div>
+
+          <!-- Humidity -->
+          <div class="detail-card">
+
+            <i class="fa-solid fa-droplet"></i>
+
+            <p>Humidity</p>
+
+            <h4 id="humidity">
+              70%
+            </h4>
+
+          </div>
+
+          <!-- Wind -->
+          <div class="detail-card">
+
+            <i class="fa-solid fa-wind"></i>
+
+            <p>Wind Speed</p>
+
+            <h4 id="windSpeed">
+              12 km/h
+            </h4>
+
+          </div>
+
+          <!-- Pressure -->
+          <div class="detail-card">
+
+            <i class="fa-solid fa-gauge-high"></i>
+
+            <p>Pressure</p>
+
+            <h4 id="pressure">
+              1012 hPa
+            </h4>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- =========================
+         Weather Alert
+    ========================== -->
+
+    <div
+      class="weather-alert"
+      id="weatherAlert"
+    >
+
+      <i class="fa-solid fa-triangle-exclamation"></i>
+
+      <p>
+        High temperature alert! Stay hydrated.
+      </p>
+
+      <button id="closeAlert">
+
+        <i class="fa-solid fa-xmark"></i>
+
+      </button>
+
+    </div>
+
+    <!-- =========================
+         Forecast Section
+    ========================== -->
+
+    <section class="forecast-section py-4">
+
+      <!-- Section Title -->
+      <div class="section-title">
+
+        <h2>
+          5-Day Forecast
+        </h2>
+
+      </div>
+
+      <!-- Forecast Cards -->
+      <div
+        class="forecast-cards"
+        id="forecastCards"
+      >
+
+        <!-- Forecast Card -->
+        <div class="forecast-card">
+
+          <h3>Sun</h3>
+
+          <img
+            src="https://openweathermap.org/img/wn/01d@2x.png"
+            alt="Sunny Weather Icon"
+          />
+
+          <p>Sunny</p>
+
+          <h4>30°C</h4>
+
+          <!-- Wind -->
+          <div class="forecast-extra">
+
+            <span>
+              <i class="fa-solid fa-wind"></i>
+              12 km/h
+            </span>
+
+          </div>
+
+          <!-- Humidity -->
+          <div class="forecast-extra">
+
+            <span>
+              <i class="fa-solid fa-droplet"></i>
+              65%
+            </span>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- =========================
+         Footer
+    ========================== -->
+
+    <footer class="footer text-center py-4">
+
+      <p>
+        Made with ❤️ using OpenWeatherMap API
+      </p>
+
+    </footer>
+
+  </div>
+
+  <!-- JavaScript File -->
+  <script src="script.js"></script>
+
+</body>
+</html>
