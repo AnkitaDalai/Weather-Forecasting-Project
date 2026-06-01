@@ -63,7 +63,7 @@ searchBtn.addEventListener("click", () => {
 });
 
 // ======================================
-// Search Weather With Enter Key
+// Search With Enter Key
 // ======================================
 
 cityInput.addEventListener("keypress", (e) => {
@@ -86,30 +86,29 @@ async function getWeatherByCity(city) {
 
   try {
 
-    // Current Weather API
     const weatherURL =
       `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=${currentUnit}`;
 
-    // Forecast API
     const forecastURL =
       `https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${apiKey}&units=${currentUnit}`;
 
-    // Fetch Current Weather
-    const weatherResponse = await fetch(weatherURL);
+    // Fetch APIs Together
+    const [weatherResponse, forecastResponse] =
+      await Promise.all([
+        fetch(weatherURL),
+        fetch(forecastURL)
+      ]);
+
     const weatherData = await weatherResponse.json();
+    const forecastData = await forecastResponse.json();
 
     // Invalid City
     if (weatherData.cod !== 200) {
 
-      hideLoader();
       showError("City not found.");
       return;
 
     }
-
-    // Fetch Forecast
-    const forecastResponse = await fetch(forecastURL);
-    const forecastData = await forecastResponse.json();
 
     // Update UI
     updateCurrentWeather(weatherData);
@@ -117,6 +116,9 @@ async function getWeatherByCity(city) {
 
     // Save Recent Search
     saveRecentCity(city);
+
+    // Clear Input
+    cityInput.value = "";
 
   } catch (error) {
 
@@ -160,15 +162,15 @@ locationBtn.addEventListener("click", () => {
         const forecastURL =
           `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${apiKey}&units=${currentUnit}`;
 
-        // Fetch Current Weather
-        const weatherResponse = await fetch(weatherURL);
-        const weatherData = await weatherResponse.json();
+        const [weatherResponse, forecastResponse] =
+          await Promise.all([
+            fetch(weatherURL),
+            fetch(forecastURL)
+          ]);
 
-        // Fetch Forecast
-        const forecastResponse = await fetch(forecastURL);
+        const weatherData = await weatherResponse.json();
         const forecastData = await forecastResponse.json();
 
-        // Update UI
         updateCurrentWeather(weatherData);
         updateForecast(forecastData);
 
@@ -204,20 +206,20 @@ function updateCurrentWeather(data) {
   cityName.textContent =
     `${data.name}, ${data.sys.country}`;
 
-  // Date
+  // Date & Time
   const today = new Date();
 
   dateTime.textContent =
-    today.toDateString();
+    today.toLocaleDateString("en-US", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric"
+    });
 
   // Temperature
-  const temp =
-    Math.round(data.main.temp);
-
   temperature.textContent =
-    currentUnit === "metric"
-      ? `${temp}°C`
-      : `${temp}°F`;
+    `${Math.round(data.main.temp)}${currentUnit === "metric" ? "°C" : "°F"}`;
 
   // Weather Condition
   weatherCondition.textContent =
@@ -229,9 +231,7 @@ function updateCurrentWeather(data) {
 
   // Feels Like
   feelsLike.textContent =
-    currentUnit === "metric"
-      ? `${Math.round(data.main.feels_like)}°C`
-      : `${Math.round(data.main.feels_like)}°F`;
+    `${Math.round(data.main.feels_like)}${currentUnit === "metric" ? "°C" : "°F"}`;
 
   // Humidity
   humidity.textContent =
@@ -239,7 +239,9 @@ function updateCurrentWeather(data) {
 
   // Wind Speed
   windSpeed.textContent =
-    `${data.wind.speed} km/h`;
+    currentUnit === "metric"
+      ? `${data.wind.speed} km/h`
+      : `${data.wind.speed} mph`;
 
   // Pressure
   pressure.textContent =
@@ -248,15 +250,15 @@ function updateCurrentWeather(data) {
   // High Temperature Alert
   if (data.main.temp > 40 && currentUnit === "metric") {
 
-    weatherAlert.style.display = "flex";
+    weatherAlert.classList.remove("hidden");
 
   } else {
 
-    weatherAlert.style.display = "none";
+    weatherAlert.classList.add("hidden");
 
   }
 
-  // Change Background
+  // Dynamic Background
   changeBackground(data.weather[0].main);
 
 }
@@ -269,14 +271,22 @@ function updateForecast(data) {
 
   forecastCards.innerHTML = "";
 
-  // Store unique days
+  if (!data.list) {
+
+    forecastCards.innerHTML =
+      `<p class="text-white">Forecast unavailable.</p>`;
+
+    return;
+
+  }
+
+  // Store Unique Days
   const forecastMap = {};
 
   data.list.forEach(item => {
 
     const date = item.dt_txt.split(" ")[0];
 
-    // Save first forecast for each day
     if (!forecastMap[date]) {
 
       forecastMap[date] = item;
@@ -285,7 +295,7 @@ function updateForecast(data) {
 
   });
 
-  // Get first 5 days
+  // Get 5 Days
   const dailyForecast =
     Object.values(forecastMap).slice(0, 5);
 
@@ -342,15 +352,12 @@ function saveRecentCity(city) {
   let cities =
     JSON.parse(localStorage.getItem("recentCities")) || [];
 
-  // Remove Duplicate
   cities = cities.filter(item =>
     item.toLowerCase() !== city.toLowerCase()
   );
 
-  // Add New City
   cities.unshift(city);
 
-  // Limit To 5
   cities = cities.slice(0, 5);
 
   localStorage.setItem(
@@ -407,12 +414,28 @@ recentCities.addEventListener("change", () => {
 // Temperature Toggle
 // ======================================
 
+function updateActiveUnit() {
+
+  celsiusBtn.classList.remove("bg-blue-600", "text-white");
+  fahrenheitBtn.classList.remove("bg-blue-600", "text-white");
+
+  if (currentUnit === "metric") {
+
+    celsiusBtn.classList.add("bg-blue-600", "text-white");
+
+  } else {
+
+    fahrenheitBtn.classList.add("bg-blue-600", "text-white");
+
+  }
+
+}
+
 celsiusBtn.addEventListener("click", () => {
 
   currentUnit = "metric";
 
-  celsiusBtn.classList.add("active");
-  fahrenheitBtn.classList.remove("active");
+  updateActiveUnit();
 
   const city =
     cityName.textContent.split(",")[0];
@@ -429,8 +452,7 @@ fahrenheitBtn.addEventListener("click", () => {
 
   currentUnit = "imperial";
 
-  fahrenheitBtn.classList.add("active");
-  celsiusBtn.classList.remove("active");
+  updateActiveUnit();
 
   const city =
     cityName.textContent.split(",")[0];
@@ -449,7 +471,7 @@ fahrenheitBtn.addEventListener("click", () => {
 
 closeAlert.addEventListener("click", () => {
 
-  weatherAlert.style.display = "none";
+  weatherAlert.classList.add("hidden");
 
 });
 
@@ -467,35 +489,30 @@ function changeBackground(weather) {
 
       backgroundImage =
         "url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=1400&auto=format&fit=crop')";
-
       break;
 
     case "clouds":
 
       backgroundImage =
         "url('https://images.unsplash.com/photo-1499346030926-9a72daac6c63?q=80&w=1400&auto=format&fit=crop')";
-
       break;
 
     case "rain":
 
       backgroundImage =
         "url('https://images.unsplash.com/photo-1501691223387-dd0500403074?q=80&w=1400&auto=format&fit=crop')";
-
       break;
 
     case "thunderstorm":
 
       backgroundImage =
         "url('https://images.unsplash.com/photo-1500674425229-f692875b0ab7?q=80&w=1400&auto=format&fit=crop')";
-
       break;
 
     case "snow":
 
       backgroundImage =
         "url('https://images.unsplash.com/photo-1517299321609-52687d1bc55a?q=80&w=1400&auto=format&fit=crop')";
-
       break;
 
     default:
@@ -525,7 +542,6 @@ function showError(message) {
 
   document.body.appendChild(errorDiv);
 
-  // Remove after 3 seconds
   setTimeout(() => {
 
     errorDiv.remove();
@@ -543,6 +559,7 @@ function showLoader() {
   if (loader) {
 
     loader.classList.remove("hidden");
+    loader.classList.add("flex");
 
   }
 
@@ -552,6 +569,7 @@ function hideLoader() {
 
   if (loader) {
 
+    loader.classList.remove("flex");
     loader.classList.add("hidden");
 
   }
@@ -564,10 +582,10 @@ function hideLoader() {
 
 window.addEventListener("load", () => {
 
-  // Load Recent Searches
   loadRecentCities();
 
-  // Default City
+  updateActiveUnit();
+
   getWeatherByCity("Bhubaneswar");
 
 });
