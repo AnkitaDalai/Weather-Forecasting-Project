@@ -1,32 +1,35 @@
 
+# 🌦️ Weather Forecast App
 
-# 🌤️ Weather Forecast App
-
-A modern and responsive Weather Forecast Application built using **HTML, CSS, and JavaScript**. This application allows users to search weather information by city name or current location and view real-time weather conditions along with a 5-day forecast.
+A modern and responsive **Weather Forecast Web Application** built using **HTML, Tailwind CSS, CSS, and JavaScript**.
+This application provides real-time weather updates, 5-day weather forecasts, location-based weather search, temperature conversion, recent searches, dynamic weather backgrounds, and a clean modern UI.
 
 ---
 
-## 🚀 Features
+## 🚀 Live Features
 
 * 🔍 Search weather by city name
 * 📍 Get weather using current location
-* 🌦️ 5-Day weather forecast
-* 🌡️ Temperature toggle (°C / °F)
-* 🕘 Recent search history using Local Storage
-* ⚠️ Weather alert for high temperatures
-* 🎨 Dynamic weather backgrounds
+* 🌡️ Toggle temperature between Celsius and Fahrenheit
+* 📅 5-Day weather forecast
+* 🕒 Auto refresh weather every 10 minutes
+* 💾 Recent city searches using Local Storage
+* 🌄 Dynamic weather background changes
+* ⚠️ Weather alert notifications
+* ⏳ Smooth loading animation
 * 📱 Fully responsive design
-* ❌ Error handling for invalid city names
-* ☁️ Real-time weather data using OpenWeatherMap API
+* 🎨 Modern UI using Tailwind CSS
+* 🌤️ Real-time weather icons from OpenWeather API
 
 ---
 
 ## 🛠️ Technologies Used
 
 * HTML5
+* Tailwind CSS
 * CSS3
-* JavaScript (Vanilla JS)
-* OpenWeatherMap API
+* JavaScript (ES6)
+* OpenWeather API
 * Font Awesome
 * Google Fonts
 
@@ -45,21 +48,92 @@ Weather-Forecast-App/
 
 ---
 
-## 🔑 API Used
+## ⚙️ API Used
 
-This project uses the **OpenWeatherMap API**.
+This project uses the OpenWeather API:
 
-* API Documentation:
-  http://openweathermap.org/current
+* Current Weather API
+* 5 Day / 3 Hour Forecast API
 
-* API Website:
-  https://openweathermap.org/
+Official Website:
+
+https://openweathermap.org/api
 
 ---
 
-## ⚙️ How to Run the Project
+## 🔑 API Key Setup
 
-1. Clone the repository
+Inside `script.js`, replace the API key with your own key if needed:
+
+```javascript
+const apiKey = "YOUR_API_KEY";
+```
+
+You can generate your free API key from:
+
+https://openweathermap.org/
+
+---
+
+## 📸 Application Features Overview
+
+### 🔍 City Search
+
+Users can search weather information by entering any city name.
+
+### 📍 Current Location Weather
+
+Uses browser geolocation to fetch weather details of the user's current location.
+
+### 🌡️ Temperature Conversion
+
+Switch weather temperature between:
+
+* Celsius (°C)
+* Fahrenheit (°F)
+
+### 📅 5-Day Forecast
+
+Displays weather forecast cards for upcoming days including:
+
+* Temperature
+* Weather condition
+* Humidity
+* Weather icon
+
+### 💾 Recent Searches
+
+Stores the latest searched cities using Local Storage.
+
+### 🌄 Dynamic Background
+
+Background image changes automatically based on weather conditions:
+
+* Clear
+* Clouds
+* Rain
+* Snow
+* Thunderstorm
+
+### ⚠️ Weather Alerts
+
+Displays alerts during extremely high temperatures.
+
+---
+
+## 📱 Responsive Design
+
+The application is fully responsive and optimized for:
+
+* Desktop
+* Tablet
+* Mobile devices
+
+---
+
+## ▶️ How to Run the Project
+
+1. Download or clone the repository
 
 ```bash
 git clone https://github.com/AnkitaDalai/Weather-Forecast-App.git
@@ -67,42 +141,25 @@ git clone https://github.com/AnkitaDalai/Weather-Forecast-App.git
 
 2. Open the project folder
 
-3. Run the `index.html` file in your browser
+3. Run `index.html` in your browser
 
 ---
 
-## 📱 Responsive Design
+## 📌 Future Improvements
 
-The application is optimized for:
-
-* Desktop
-* Tablet
-* Mobile Devices
-
----
-
-## 💡 Learning Outcomes
-
-Through this project, I learned:
-
-* API Integration using JavaScript
-* Fetch API and Async/Await
-* DOM Manipulation
-* Responsive Web Design
-* Event Handling
-* Local Storage Handling
+* Air quality index integration
+* Sunrise & sunset timings
+* Hourly weather forecast
+* Dark/Light mode toggle
+* Weather map integration
+* Voice-based city search
 
 ---
 
-## 👩‍💻 Author
+## 👩‍💻 Developed By
 
-**Ankita Dalai**
-
-GitHub:
-https://github.com/AnkitaDalai
+Ankita Dalai
 
 ---
 
-## 📄 License
 
-This project is created for educational and learning purposes.
