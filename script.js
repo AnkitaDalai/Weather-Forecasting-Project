@@ -246,7 +246,9 @@ function updateCurrentWeather(data) {
 
   // Wind Speed
   windSpeed.textContent =
-    `${data.wind.speed} km/h`;
+  currentUnit === "metric"
+    ? `${data.wind.speed} m/s`
+    : `${data.wind.speed} mph`;
 
   // Pressure
   pressure.textContent =
