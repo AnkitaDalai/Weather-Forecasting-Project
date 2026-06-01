@@ -35,6 +35,8 @@ const fahrenheitBtn = document.getElementById("fahrenheitBtn");
 
 const weatherSection = document.querySelector(".weather-section");
 
+const loader = document.getElementById("loader");
+
 // ======================================
 // Default Temperature Unit
 // ======================================
@@ -61,7 +63,7 @@ searchBtn.addEventListener("click", () => {
 });
 
 // ======================================
-// Search With Enter Key
+// Search Weather With Enter Key
 // ======================================
 
 cityInput.addEventListener("keypress", (e) => {
@@ -88,7 +90,7 @@ async function getWeatherByCity(city) {
     const weatherURL =
       `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=${currentUnit}`;
 
-    // 5 Day Forecast API
+    // Forecast API
     const forecastURL =
       `https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${apiKey}&units=${currentUnit}`;
 
@@ -116,12 +118,13 @@ async function getWeatherByCity(city) {
     // Save Recent Search
     saveRecentCity(city);
 
-    hideLoader();
-
   } catch (error) {
 
-    hideLoader();
     showError("Something went wrong.");
+
+  } finally {
+
+    hideLoader();
 
   }
 
@@ -140,11 +143,11 @@ locationBtn.addEventListener("click", () => {
 
   }
 
-  showLoader();
-
   navigator.geolocation.getCurrentPosition(
 
     async (position) => {
+
+      showLoader();
 
       const lat = position.coords.latitude;
       const lon = position.coords.longitude;
@@ -169,12 +172,13 @@ locationBtn.addEventListener("click", () => {
         updateCurrentWeather(weatherData);
         updateForecast(forecastData);
 
-        hideLoader();
-
       } catch (error) {
 
-        hideLoader();
         showError("Unable to fetch location weather.");
+
+      } finally {
+
+        hideLoader();
 
       }
 
@@ -182,7 +186,6 @@ locationBtn.addEventListener("click", () => {
 
     () => {
 
-      hideLoader();
       showError("Location access denied.");
 
     }
@@ -201,7 +204,7 @@ function updateCurrentWeather(data) {
   cityName.textContent =
     `${data.name}, ${data.sys.country}`;
 
-  // Current Date
+  // Date
   const today = new Date();
 
   dateTime.textContent =
@@ -253,7 +256,7 @@ function updateCurrentWeather(data) {
 
   }
 
-  // Change Background Dynamically
+  // Change Background
   changeBackground(data.weather[0].main);
 
 }
@@ -266,42 +269,62 @@ function updateForecast(data) {
 
   forecastCards.innerHTML = "";
 
-  // One Forecast Per Day
-  const dailyForecast = data.list.filter(item =>
-    item.dt_txt.includes("12:00:00")
-  );
+  // Store unique days
+  const forecastMap = {};
+
+  data.list.forEach(item => {
+
+    const date = item.dt_txt.split(" ")[0];
+
+    // Save first forecast for each day
+    if (!forecastMap[date]) {
+
+      forecastMap[date] = item;
+
+    }
+
+  });
+
+  // Get first 5 days
+  const dailyForecast =
+    Object.values(forecastMap).slice(0, 5);
 
   dailyForecast.forEach(day => {
 
     const card = document.createElement("div");
 
-    card.classList.add("forecast-card");
+    card.className =
+      "forecast-card bg-white/80 backdrop-blur-md rounded-3xl p-6 text-center shadow-lg border border-white/30 hover:-translate-y-2 transition duration-300";
 
     const date = new Date(day.dt_txt);
 
     card.innerHTML = `
-      <h3>
+
+      <h3 class="text-lg font-semibold text-slate-800 mb-3">
         ${date.toLocaleDateString("en-US", {
           weekday: "short"
         })}
       </h3>
 
       <img
+        class="w-20 mx-auto"
         src="https://openweathermap.org/img/wn/${day.weather[0].icon}@2x.png"
         alt="Weather Icon"
       />
 
-      <p>${day.weather[0].main}</p>
+      <p class="text-slate-600 mt-2">
+        ${day.weather[0].main}
+      </p>
 
-      <h4>
+      <h4 class="text-3xl font-bold text-blue-600 mt-2">
         ${Math.round(day.main.temp)}
         ${currentUnit === "metric" ? "°C" : "°F"}
       </h4>
 
-      <div class="forecast-extra">
-        <i class="fa-solid fa-droplet"></i>
-        ${day.main.humidity}%
-      </div>
+      <p class="text-sm text-slate-500 mt-2">
+        Humidity: ${day.main.humidity}%
+      </p>
+
     `;
 
     forecastCards.appendChild(card);
@@ -381,7 +404,7 @@ recentCities.addEventListener("change", () => {
 });
 
 // ======================================
-// Temperature Unit Toggle
+// Temperature Toggle
 // ======================================
 
 celsiusBtn.addEventListener("click", () => {
@@ -431,7 +454,7 @@ closeAlert.addEventListener("click", () => {
 });
 
 // ======================================
-// Dynamic Weather Background
+// Dynamic Background
 // ======================================
 
 function changeBackground(weather) {
@@ -502,7 +525,7 @@ function showError(message) {
 
   document.body.appendChild(errorDiv);
 
-  // Remove After 3 Seconds
+  // Remove after 3 seconds
   setTimeout(() => {
 
     errorDiv.remove();
@@ -517,35 +540,19 @@ function showError(message) {
 
 function showLoader() {
 
-  let loader =
-    document.getElementById("loader");
+  if (loader) {
 
-  if (!loader) {
-
-    loader = document.createElement("div");
-
-    loader.id = "loader";
-
-    loader.innerHTML = `
-      <div class="loader-spinner"></div>
-    `;
-
-    document.body.appendChild(loader);
+    loader.classList.remove("hidden");
 
   }
-
-  loader.style.display = "flex";
 
 }
 
 function hideLoader() {
 
-  const loader =
-    document.getElementById("loader");
-
   if (loader) {
 
-    loader.style.display = "none";
+    loader.classList.add("hidden");
 
   }
 
