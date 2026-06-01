@@ -66,7 +66,7 @@ https://openweathermap.org/api
 Inside `script.js`, replace the API key with your own key if needed:
 
 ```javascript
-const apiKey = "YOUR_API_KEY";
+const apiKey = "bd5e378503939ddaee76f12ad7a97608";
 ```
 
 You can generate your free API key from:
