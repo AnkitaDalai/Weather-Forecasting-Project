@@ -14,14 +14,20 @@ const locationBtn = document.getElementById("locationBtn");
 
 const cityName = document.getElementById("cityName");
 const dateTime = document.getElementById("dateTime");
+const liveClock = document.getElementById("liveClock");
+
 const temperature = document.getElementById("temperature");
 const weatherCondition = document.getElementById("weatherCondition");
+const weatherTip = document.getElementById("weatherTip");
 const weatherIcon = document.getElementById("weatherIcon");
 
 const feelsLike = document.getElementById("feelsLike");
 const humidity = document.getElementById("humidity");
 const windSpeed = document.getElementById("windSpeed");
 const pressure = document.getElementById("pressure");
+
+const sunrise = document.getElementById("sunrise");
+const sunset = document.getElementById("sunset");
 
 const forecastCards = document.getElementById("forecastCards");
 
@@ -33,15 +39,18 @@ const closeAlert = document.getElementById("closeAlert");
 const celsiusBtn = document.getElementById("celsiusBtn");
 const fahrenheitBtn = document.getElementById("fahrenheitBtn");
 
-const weatherSection = document.querySelector(".weather-section");
+const weatherSection =
+  document.querySelector(".weather-section");
 
-const loader = document.getElementById("loader");
+const loader =
+  document.getElementById("loader");
 
 // ======================================
 // Default Temperature Unit
 // ======================================
 
 let currentUnit = "metric";
+let currentCity = "Bhubaneswar";
 
 // ======================================
 // Search Weather By City
@@ -82,28 +91,26 @@ cityInput.addEventListener("keypress", (e) => {
 
 async function getWeatherByCity(city) {
 
+  currentCity = city;
+
   showLoader();
 
   try {
 
+    // Current Weather API
     const weatherURL =
       `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=${currentUnit}`;
 
+    // Forecast API
     const forecastURL =
       `https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${apiKey}&units=${currentUnit}`;
 
-    // Fetch Both APIs Together
-    const [weatherResponse, forecastResponse] =
-      await Promise.all([
-        fetch(weatherURL),
-        fetch(forecastURL)
-      ]);
+    // Fetch Current Weather
+    const weatherResponse =
+      await fetch(weatherURL);
 
     const weatherData =
       await weatherResponse.json();
-
-    const forecastData =
-      await forecastResponse.json();
 
     // Invalid City
     if (weatherData.cod !== 200) {
@@ -113,12 +120,35 @@ async function getWeatherByCity(city) {
 
     }
 
+    // Fetch Forecast
+    const forecastResponse =
+      await fetch(forecastURL);
+
+    const forecastData =
+      await forecastResponse.json();
+
+    // Forecast Validation
+    if (!forecastData.list) {
+
+      showError("Forecast unavailable.");
+      return;
+
+    }
+
     // Update UI
     updateCurrentWeather(weatherData);
+
     updateForecast(forecastData);
+
+    updateWeatherTip(
+      weatherData.weather[0].main
+    );
 
     // Save Recent Search
     saveRecentCity(city);
+
+    // Clear Input
+    cityInput.value = "";
 
   } catch (error) {
 
@@ -126,7 +156,7 @@ async function getWeatherByCity(city) {
 
   } finally {
 
-    smoothHideLoader();
+    hideLoader();
 
   }
 
@@ -162,30 +192,41 @@ locationBtn.addEventListener("click", () => {
         const forecastURL =
           `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${apiKey}&units=${currentUnit}`;
 
-        // Fetch Both APIs Together
-        const [weatherResponse, forecastResponse] =
-          await Promise.all([
-            fetch(weatherURL),
-            fetch(forecastURL)
-          ]);
+        // Fetch Current Weather
+        const weatherResponse =
+          await fetch(weatherURL);
 
         const weatherData =
           await weatherResponse.json();
 
+        // Fetch Forecast
+        const forecastResponse =
+          await fetch(forecastURL);
+
         const forecastData =
           await forecastResponse.json();
 
+        // Update Current City
+        currentCity = weatherData.name;
+
         // Update UI
         updateCurrentWeather(weatherData);
+
         updateForecast(forecastData);
+
+        updateWeatherTip(
+          weatherData.weather[0].main
+        );
 
       } catch (error) {
 
-        showError("Unable to fetch location weather.");
+        showError(
+          "Unable to fetch location weather."
+        );
 
       } finally {
 
-        smoothHideLoader();
+        hideLoader();
 
       }
 
@@ -211,11 +252,18 @@ function updateCurrentWeather(data) {
   cityName.textContent =
     `${data.name}, ${data.sys.country}`;
 
-  // Current Date
+  // Date
   const today = new Date();
 
   dateTime.textContent =
-    today.toDateString();
+    today.toLocaleDateString("en-US", {
+
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric"
+
+    });
 
   // Temperature
   const temp =
@@ -234,6 +282,9 @@ function updateCurrentWeather(data) {
   weatherIcon.src =
     `https://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png`;
 
+  weatherIcon.alt =
+    data.weather[0].main;
+
   // Feels Like
   feelsLike.textContent =
     currentUnit === "metric"
@@ -246,28 +297,40 @@ function updateCurrentWeather(data) {
 
   // Wind Speed
   windSpeed.textContent =
-  currentUnit === "metric"
-    ? `${data.wind.speed} m/s`
-    : `${data.wind.speed} mph`;
+    currentUnit === "metric"
+      ? `${data.wind.speed} m/s`
+      : `${data.wind.speed} mph`;
 
   // Pressure
   pressure.textContent =
     `${data.main.pressure} hPa`;
 
-  // Weather Alert
-  if (data.main.temp > 40 && currentUnit === "metric") {
+  // Sunrise
+  sunrise.textContent =
+    formatTime(data.sys.sunrise);
 
-    weatherAlert.classList.remove("hidden");
-    weatherAlert.classList.add("flex");
+  // Sunset
+  sunset.textContent =
+    formatTime(data.sys.sunset);
+
+  // High Temperature Alert
+  if (
+    data.main.temp > 40 &&
+    currentUnit === "metric"
+  ) {
+
+    weatherAlert.style.display = "flex";
 
   } else {
 
-    weatherAlert.classList.add("hidden");
+    weatherAlert.style.display = "none";
 
   }
 
-  // Dynamic Background
-  changeBackground(data.weather[0].main);
+  // Change Background
+  changeBackground(
+    data.weather[0].main
+  );
 
 }
 
@@ -279,13 +342,15 @@ function updateForecast(data) {
 
   forecastCards.innerHTML = "";
 
-  // Store Unique Days
+  // Store unique days
   const forecastMap = {};
 
   data.list.forEach(item => {
 
-    const date = item.dt_txt.split(" ")[0];
+    const date =
+      item.dt_txt.split(" ")[0];
 
+    // Save first forecast
     if (!forecastMap[date]) {
 
       forecastMap[date] = item;
@@ -294,18 +359,35 @@ function updateForecast(data) {
 
   });
 
-  // First 5 Days
+  // Get first 5 days
   const dailyForecast =
     Object.values(forecastMap).slice(0, 5);
 
+  // Empty Forecast Protection
+  if (dailyForecast.length === 0) {
+
+    forecastCards.innerHTML = `
+
+      <p class="text-slate-500 text-lg col-span-full text-center">
+        Forecast data unavailable.
+      </p>
+
+    `;
+
+    return;
+
+  }
+
   dailyForecast.forEach(day => {
 
-    const card = document.createElement("div");
+    const card =
+      document.createElement("div");
 
     card.className =
       "forecast-card bg-white/80 backdrop-blur-md rounded-3xl p-6 text-center shadow-lg border border-white/30 hover:-translate-y-2 transition duration-300";
 
-    const date = new Date(day.dt_txt);
+    const date =
+      new Date(day.dt_txt);
 
     card.innerHTML = `
 
@@ -327,11 +409,14 @@ function updateForecast(data) {
 
       <h4 class="text-3xl font-bold text-blue-600 mt-2">
         ${Math.round(day.main.temp)}
-        ${currentUnit === "metric" ? "°C" : "°F"}
+        ${currentUnit === "metric"
+          ? "°C"
+          : "°F"}
       </h4>
 
       <p class="text-sm text-slate-500 mt-2">
-        Humidity: ${day.main.humidity}%
+        Humidity:
+        ${day.main.humidity}%
       </p>
 
     `;
@@ -349,11 +434,14 @@ function updateForecast(data) {
 function saveRecentCity(city) {
 
   let cities =
-    JSON.parse(localStorage.getItem("recentCities")) || [];
+    JSON.parse(
+      localStorage.getItem("recentCities")
+    ) || [];
 
   // Remove Duplicate
   cities = cities.filter(item =>
-    item.toLowerCase() !== city.toLowerCase()
+    item.toLowerCase() !==
+    city.toLowerCase()
   );
 
   // Add New City
@@ -378,14 +466,17 @@ function saveRecentCity(city) {
 function loadRecentCities() {
 
   const cities =
-    JSON.parse(localStorage.getItem("recentCities")) || [];
+    JSON.parse(
+      localStorage.getItem("recentCities")
+    ) || [];
 
   recentCities.innerHTML =
     `<option value="">Recent Searches</option>`;
 
   cities.forEach(city => {
 
-    const option = document.createElement("option");
+    const option =
+      document.createElement("option");
 
     option.value = city;
     option.textContent = city;
@@ -402,7 +493,8 @@ function loadRecentCities() {
 
 recentCities.addEventListener("change", () => {
 
-  const city = recentCities.value;
+  const city =
+    recentCities.value;
 
   if (city !== "") {
 
@@ -420,22 +512,13 @@ celsiusBtn.addEventListener("click", () => {
 
   currentUnit = "metric";
 
-  celsiusBtn.classList.add(
-    "bg-blue-600",
-    "text-white"
-  );
+  celsiusBtn.classList.add("active");
 
-  fahrenheitBtn.classList.remove(
-    "bg-blue-600",
-    "text-white"
-  );
+  fahrenheitBtn.classList.remove("active");
 
-  const city =
-    cityName.textContent.split(",")[0];
+  if (currentCity) {
 
-  if (city) {
-
-    getWeatherByCity(city);
+    getWeatherByCity(currentCity);
 
   }
 
@@ -445,22 +528,13 @@ fahrenheitBtn.addEventListener("click", () => {
 
   currentUnit = "imperial";
 
-  fahrenheitBtn.classList.add(
-    "bg-blue-600",
-    "text-white"
-  );
+  fahrenheitBtn.classList.add("active");
 
-  celsiusBtn.classList.remove(
-    "bg-blue-600",
-    "text-white"
-  );
+  celsiusBtn.classList.remove("active");
 
-  const city =
-    cityName.textContent.split(",")[0];
+  if (currentCity) {
 
-  if (city) {
-
-    getWeatherByCity(city);
+    getWeatherByCity(currentCity);
 
   }
 
@@ -472,12 +546,68 @@ fahrenheitBtn.addEventListener("click", () => {
 
 closeAlert.addEventListener("click", () => {
 
-  weatherAlert.classList.add("hidden");
+  weatherAlert.style.display = "none";
 
 });
 
 // ======================================
-// Dynamic Weather Background
+// Dynamic Weather Tips
+// ======================================
+
+function updateWeatherTip(weather) {
+
+  let tip = "";
+
+  switch (weather.toLowerCase()) {
+
+    case "clear":
+
+      tip =
+        "Perfect day for outdoor activities ☀️";
+
+      break;
+
+    case "clouds":
+
+      tip =
+        "Cloudy skies today. Carry light layers ☁️";
+
+      break;
+
+    case "rain":
+
+      tip =
+        "Don't forget your umbrella 🌧️";
+
+      break;
+
+    case "thunderstorm":
+
+      tip =
+        "Stay indoors and avoid open areas ⛈️";
+
+      break;
+
+    case "snow":
+
+      tip =
+        "Wear warm clothes and stay safe ❄️";
+
+      break;
+
+    default:
+
+      tip =
+        "Stay prepared for today's weather.";
+
+  }
+
+  weatherTip.textContent = tip;
+
+}
+
+// ======================================
+// Dynamic Background
 // ======================================
 
 function changeBackground(weather) {
@@ -534,6 +664,22 @@ function changeBackground(weather) {
 }
 
 // ======================================
+// Format Time
+// ======================================
+
+function formatTime(timestamp) {
+
+  return new Date(timestamp * 1000)
+    .toLocaleTimeString("en-US", {
+
+      hour: "2-digit",
+      minute: "2-digit"
+
+    });
+
+}
+
+// ======================================
 // Show Error Message
 // ======================================
 
@@ -548,6 +694,7 @@ function showError(message) {
 
   document.body.appendChild(errorDiv);
 
+  // Remove after 3 seconds
   setTimeout(() => {
 
     errorDiv.remove();
@@ -567,28 +714,49 @@ function showLoader() {
     loader.classList.remove("hidden");
     loader.classList.add("flex");
 
-    loader.style.opacity = "1";
-
   }
 
 }
 
-function smoothHideLoader() {
+function hideLoader() {
 
   if (loader) {
 
-    loader.style.opacity = "0";
-
-    setTimeout(() => {
-
-      loader.classList.add("hidden");
-      loader.classList.remove("flex");
-
-    }, 300);
+    loader.classList.remove("flex");
+    loader.classList.add("hidden");
 
   }
 
 }
+
+// ======================================
+// Live Clock
+// ======================================
+
+function updateClock() {
+
+  const now = new Date();
+
+  liveClock.textContent =
+    now.toLocaleTimeString();
+
+}
+
+setInterval(updateClock, 1000);
+
+// ======================================
+// Auto Refresh Weather
+// ======================================
+
+setInterval(() => {
+
+  if (currentCity) {
+
+    getWeatherByCity(currentCity);
+
+  }
+
+}, 300000);
 
 // ======================================
 // Load Default Weather
@@ -599,7 +767,10 @@ window.addEventListener("load", () => {
   // Load Recent Searches
   loadRecentCities();
 
-  // Default City
-  getWeatherByCity("Bhubaneswar");
+  // Start Clock
+  updateClock();
+
+  // Default Weather
+  getWeatherByCity(currentCity);
 
 });
