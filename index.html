@@ -1,12 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
 
-  <!-- Meta Tags -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <!-- Title -->
   <title>Weather Forecast App</title>
 
   <!-- Favicon -->
@@ -14,9 +13,9 @@
     rel="icon"
     type="image/png"
     href="https://cdn-icons-png.flaticon.com/512/7133/7133364.png"
-  />
+  >
 
-  <!-- Google Fonts -->
+  <!-- Google Font -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
@@ -34,73 +33,84 @@
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
 
-  <!-- CSS File -->
+  <!-- External CSS -->
   <link rel="stylesheet" href="style.css" />
 
 </head>
 
-<body class="bg-blue-50">
+<body class="font-[Poppins] bg-gradient-to-r from-blue-100 to-slate-100 min-h-screen p-5">
 
   <!-- Main Container -->
-  <div class="container mx-auto px-2">
+  <div class="max-w-7xl mx-auto">
 
     <!-- =========================
          Header
     ========================== -->
 
-    <header class="header flex flex-wrap">
+    <header class="flex flex-wrap items-center justify-between gap-5 mb-5">
 
       <!-- Logo -->
-      <div class="logo">
+      <div class="flex items-center gap-3">
 
-        <i class="fa-solid fa-cloud-sun"></i>
+        <i class="fa-solid fa-cloud-sun text-4xl text-blue-600"></i>
 
-        <h2>Weatherly</h2>
+        <h1 class="text-3xl font-semibold text-slate-800">
+          Weatherly
+        </h1>
 
       </div>
 
       <!-- Search Box -->
-      <div class="search-box">
+      <div
+        class="flex flex-1 max-w-xl bg-white rounded-full overflow-hidden shadow-md"
+      >
 
         <input
           type="text"
           id="cityInput"
           placeholder="Search city..."
-          aria-label="Search city"
-        />
+          class="flex-1 px-5 py-4 outline-none text-slate-700"
+        >
 
         <button
           id="searchBtn"
-          aria-label="Search Weather"
+          class="w-16 bg-blue-600 text-white hover:bg-blue-700 transition"
         >
+
           <i class="fa-solid fa-magnifying-glass"></i>
+
         </button>
 
       </div>
 
       <!-- Header Buttons -->
-      <div class="header-buttons">
+      <div class="flex items-center gap-4 flex-wrap">
 
-        <!-- Current Location Button -->
-        <button id="locationBtn">
+        <!-- Current Location -->
+        <button
+          id="locationBtn"
+          class="bg-white text-slate-700 px-5 py-3 rounded-full font-medium shadow hover:bg-blue-600 hover:text-white transition"
+        >
 
-          <i class="fa-solid fa-location-dot"></i>
-
+          <i class="fa-solid fa-location-dot mr-2"></i>
           Current Location
 
         </button>
 
         <!-- Temperature Toggle -->
-        <div class="temp-toggle">
+        <div class="flex bg-white rounded-full overflow-hidden shadow">
 
           <button
             id="celsiusBtn"
-            class="active"
+            class="px-5 py-3 font-semibold bg-blue-600 text-white"
           >
             °C
           </button>
 
-          <button id="fahrenheitBtn">
+          <button
+            id="fahrenheitBtn"
+            class="px-5 py-3 font-semibold text-slate-700"
+          >
             °F
           </button>
 
@@ -114,12 +124,12 @@
          Recent Searches
     ========================== -->
 
-    <div
-      class="recent-searches hidden"
-      id="recentSearchContainer"
-    >
+    <div class="mb-5">
 
-      <select id="recentCities">
+      <select
+        id="recentCities"
+        class="bg-white px-5 py-3 rounded-full shadow text-slate-700 outline-none"
+      >
 
         <option value="">
           Recent Searches
@@ -133,31 +143,42 @@
          Weather Section
     ========================== -->
 
-    <section class="weather-section transition-all duration-500">
+    <section
+      class="weather-section relative rounded-[30px] overflow-hidden min-h-[500px] mb-6 bg-cover bg-center"
+    >
 
       <!-- Overlay -->
-      <div class="overlay"></div>
+      <div class="overlay absolute inset-0 bg-black/40"></div>
 
       <!-- Weather Content -->
-      <div class="weather-content">
+      <div
+        class="weather-content relative z-10 flex flex-wrap justify-between gap-8 p-10"
+      >
 
-        <!-- Left Weather Info -->
-        <div class="weather-info">
+        <!-- Weather Info -->
+        <div class="weather-info text-white">
 
-          <!-- City -->
-          <h1 id="cityName">
+          <h1
+            id="cityName"
+            class="text-5xl font-semibold mb-3"
+          >
             Bhubaneswar
           </h1>
 
-          <!-- Date -->
-          <p id="dateTime">
+          <p
+            id="dateTime"
+            class="mb-5 text-lg"
+          >
             Saturday, 30 May 2026
           </p>
 
           <!-- Temperature -->
-          <div class="temperature">
+          <div class="flex items-center gap-5">
 
-            <h2 id="temperature">
+            <h2
+              id="temperature"
+              class="text-8xl font-bold"
+            >
               28°C
             </h2>
 
@@ -165,67 +186,100 @@
               id="weatherIcon"
               src="https://openweathermap.org/img/wn/02d@2x.png"
               alt="Weather Icon"
-            />
+              class="w-32"
+            >
 
           </div>
 
-          <!-- Weather Condition -->
-          <h3 id="weatherCondition">
+          <h3
+            id="weatherCondition"
+            class="text-3xl font-medium mt-3"
+          >
             Partly Cloudy
           </h3>
 
         </div>
 
         <!-- Weather Details -->
-        <div class="weather-details">
+        <div
+          class="weather-details grid grid-cols-1 sm:grid-cols-2 gap-5"
+        >
 
-          <!-- Feels Like -->
-          <div class="detail-card">
+          <!-- Card -->
+          <div
+            class="detail-card bg-white/20 backdrop-blur-md p-6 rounded-2xl text-center text-white w-[180px]"
+          >
 
-            <i class="fa-solid fa-temperature-half"></i>
+            <i class="fa-solid fa-temperature-half text-3xl mb-3"></i>
 
-            <p>Feels Like</p>
+            <p class="mb-2">
+              Feels Like
+            </p>
 
-            <h4 id="feelsLike">
+            <h4
+              id="feelsLike"
+              class="text-2xl font-semibold"
+            >
               31°C
             </h4>
 
           </div>
 
-          <!-- Humidity -->
-          <div class="detail-card">
+          <!-- Card -->
+          <div
+            class="detail-card bg-white/20 backdrop-blur-md p-6 rounded-2xl text-center text-white w-[180px]"
+          >
 
-            <i class="fa-solid fa-droplet"></i>
+            <i class="fa-solid fa-droplet text-3xl mb-3"></i>
 
-            <p>Humidity</p>
+            <p class="mb-2">
+              Humidity
+            </p>
 
-            <h4 id="humidity">
+            <h4
+              id="humidity"
+              class="text-2xl font-semibold"
+            >
               70%
             </h4>
 
           </div>
 
-          <!-- Wind -->
-          <div class="detail-card">
+          <!-- Card -->
+          <div
+            class="detail-card bg-white/20 backdrop-blur-md p-6 rounded-2xl text-center text-white w-[180px]"
+          >
 
-            <i class="fa-solid fa-wind"></i>
+            <i class="fa-solid fa-wind text-3xl mb-3"></i>
 
-            <p>Wind Speed</p>
+            <p class="mb-2">
+              Wind
+            </p>
 
-            <h4 id="windSpeed">
+            <h4
+              id="windSpeed"
+              class="text-2xl font-semibold"
+            >
               12 km/h
             </h4>
 
           </div>
 
-          <!-- Pressure -->
-          <div class="detail-card">
+          <!-- Card -->
+          <div
+            class="detail-card bg-white/20 backdrop-blur-md p-6 rounded-2xl text-center text-white w-[180px]"
+          >
 
-            <i class="fa-solid fa-gauge-high"></i>
+            <i class="fa-solid fa-gauge-high text-3xl mb-3"></i>
 
-            <p>Pressure</p>
+            <p class="mb-2">
+              Pressure
+            </p>
 
-            <h4 id="pressure">
+            <h4
+              id="pressure"
+              class="text-2xl font-semibold"
+            >
               1012 hPa
             </h4>
 
@@ -242,17 +296,20 @@
     ========================== -->
 
     <div
-      class="weather-alert"
+      class="weather-alert flex items-center gap-4 bg-orange-100 text-orange-900 px-6 py-4 rounded-2xl mb-6"
       id="weatherAlert"
     >
 
-      <i class="fa-solid fa-triangle-exclamation"></i>
+      <i class="fa-solid fa-triangle-exclamation text-2xl"></i>
 
-      <p>
+      <p class="font-medium">
         High temperature alert! Stay hydrated.
       </p>
 
-      <button id="closeAlert">
+      <button
+        id="closeAlert"
+        class="ml-auto text-xl"
+      >
 
         <i class="fa-solid fa-xmark"></i>
 
@@ -264,12 +321,12 @@
          Forecast Section
     ========================== -->
 
-    <section class="forecast-section py-4">
+    <section class="forecast-section mb-8">
 
-      <!-- Section Title -->
-      <div class="section-title">
+      <!-- Title -->
+      <div class="mb-5">
 
-        <h2>
+        <h2 class="text-3xl font-semibold text-slate-800">
           5-Day Forecast
         </h2>
 
@@ -277,43 +334,32 @@
 
       <!-- Forecast Cards -->
       <div
-        class="forecast-cards"
         id="forecastCards"
+        class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-5"
       >
 
         <!-- Forecast Card -->
-        <div class="forecast-card">
+        <div
+          class="forecast-card bg-white rounded-3xl p-6 text-center shadow-md text-slate-700 hover:-translate-y-1 transition"
+        >
 
-          <h3>Sun</h3>
+          <h3 class="text-xl font-semibold mb-3">
+            Sun
+          </h3>
 
           <img
             src="https://openweathermap.org/img/wn/01d@2x.png"
-            alt="Sunny Weather Icon"
-          />
+            alt=""
+            class="w-24 mx-auto"
+          >
 
-          <p>Sunny</p>
+          <p class="my-2">
+            Sunny
+          </p>
 
-          <h4>30°C</h4>
-
-          <!-- Wind -->
-          <div class="forecast-extra">
-
-            <span>
-              <i class="fa-solid fa-wind"></i>
-              12 km/h
-            </span>
-
-          </div>
-
-          <!-- Humidity -->
-          <div class="forecast-extra">
-
-            <span>
-              <i class="fa-solid fa-droplet"></i>
-              65%
-            </span>
-
-          </div>
+          <h4 class="text-3xl font-bold text-blue-600">
+            30°C
+          </h4>
 
         </div>
 
@@ -325,18 +371,34 @@
          Footer
     ========================== -->
 
-    <footer class="footer text-center py-4">
+    <footer class="text-center py-5 text-slate-700 font-medium">
 
       <p>
-        Made with ❤️ using OpenWeatherMap API
+        Developed by Ankita Dalai © 2026
       </p>
 
     </footer>
 
   </div>
 
-  <!-- JavaScript File -->
+  <!-- =========================
+       Loader
+  ========================== -->
+
+  <div
+    id="loader"
+    class="fixed inset-0 bg-white/90 hidden justify-center items-center z-50"
+  >
+
+    <div
+      class="w-16 h-16 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin"
+    ></div>
+
+  </div>
+
+  <!-- JS File -->
   <script src="script.js"></script>
 
 </body>
+
 </html>
